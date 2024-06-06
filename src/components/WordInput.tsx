@@ -23,7 +23,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
         .post('/guess', { query: props.query, word_id: gameState.word_id })
         .then((res) => res.data)
       reset()
-      if (data.valid && data.score) {
+      if (data.valid && data.score !== undefined) {
         await pushGuessToState({
           score: data.score,
           word: cyrilicToLatin(props.query),
