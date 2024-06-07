@@ -37,7 +37,7 @@ export const GameWinScreen: FC<IGameWinScreenProps> = ({ resetGameState, gameSta
         <span className="font-bold uppercase">{gameState.best_guesses[0].word}</span> je tražena reč!
       </h1>
 
-      {stats && (
+      {stats && stats.total_plays > 1 && (
         <div className="bg-gray-700 mt-8 p-4 rounded-xl flex flex-col gap-2">
           <p>
             - ova reč je pronađena {stats.total_plays} put{stats.total_plays === 1 ? '' : 'a'}
