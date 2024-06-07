@@ -1,4 +1,5 @@
 import {useEffect, useState} from 'react'
+import ReactGA from 'react-ga4';
 import {getGameState, ILocalState} from "./components/local.ts";
 import {Menu} from "./components/Menu.tsx";
 import {GameWinScreen} from "./components/GameWinScreen.tsx";
@@ -11,6 +12,8 @@ import {Clue} from "./components/Clue.tsx";
 function App() {
     const [gameState, setGameState] = useState<ILocalState | null>(null)
     const [message, setMessage] = useState('')
+
+    ReactGA.initialize('G-ST09LH7B4T');
 
     async function resetGameState() {
         const state = await getGameState()
