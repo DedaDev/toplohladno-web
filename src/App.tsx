@@ -6,6 +6,7 @@ import {WordInput} from "./components/WordInput.tsx";
 import TextWithNewLine from "./components/TextWithNewLine.tsx";
 import {GuessBar} from "./components/GuessBar.tsx";
 import {OutOfScopeGuess} from "./components/OutOfScopeGuess.tsx";
+import {Clue} from "./components/Clue.tsx";
 
 function App() {
     const [gameState, setGameState] = useState<ILocalState | null>(null)
@@ -40,6 +41,7 @@ function App() {
                                     <TextWithNewLine text={message} />
                                 </div>
                                 <div className="flex flex-col mt-2 w-full gap-2">
+                                    {gameState.best_guesses.length === 0 && <Clue clue={gameState.human_clue}/>}
                                     {gameState.best_guesses.map((guess) => (
                                         <GuessBar highlighted={guess.word === gameState?.last_guess?.word} key={guess.word} guess={guess} />
                                     ))}

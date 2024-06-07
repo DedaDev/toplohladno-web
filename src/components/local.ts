@@ -6,6 +6,7 @@ export interface IGoodGuess {
   word: string
 }
 export interface ILocalState {
+  human_clue: string
   word_id: number
   guesses: number
   best_guesses: IGoodGuess[]
@@ -18,12 +19,13 @@ export async function getGameState(): Promise<ILocalState> {
   const local_state = getLocalState()
   if (local_state) return local_state
   try {
-    const { word_id } = await toplohladnoInstance.get('/get_random_word').then((res) => res.data)
+    const { word_id, human_clue } = await toplohladnoInstance.get('/get_random_word').then((res) => res.data)
     const newState: ILocalState = {
       word_id,
       guesses: 1,
       best_guesses: [],
       last_guess: null,
+      human_clue
     }
     setLocalState(newState)
     return newState
