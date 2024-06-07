@@ -19,14 +19,15 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
 
   async function onSubmit(props: InputProps) {
     try {
+      const query = props.query.trim()
       const data: IGuessResponse = await toplohladnoInstance
-        .post('/guess', { query: props.query, word_id: gameState.word_id })
+        .post('/guess', { query, word_id: gameState.word_id })
         .then((res) => res.data)
       reset()
       if (data.valid && data.score !== undefined) {
         await pushGuessToState({
           score: data.score,
-          word: cyrilicToLatin(props.query),
+          word: cyrilicToLatin(query),
         })
         setMessage('')
         resetGameState()
