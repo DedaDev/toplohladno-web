@@ -19,7 +19,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
 
   async function onSubmit(props: InputProps) {
     try {
-      const query = props.query.trim()
+      const query = props.query.trim().toLowerCase()
       const data: IGuessResponse = await toplohladnoInstance
         .post('/guess', { query, word_id: gameState.word_id })
         .then((res) => res.data)
