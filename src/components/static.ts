@@ -1,5 +1,6 @@
 export const MAX_GUESSES_TO_SHOW = 10
 export interface IGuessResponse {
+  word: string
   valid: boolean
   message: string
   score?: number

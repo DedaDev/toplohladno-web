@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { FC } from 'react'
 import { cyrilicToLatin } from 'serbian-script-converter'
 import {toplohladnoInstance} from "../api/toplohladno.ts";
-import {IGuessResponse, MAX_GUESSES_TO_SHOW} from "./static.ts";
+import {IGuessResponse } from "./static.ts";
 import {ILocalState, pushGuessToState} from "./local.ts";
 
 interface InputProps {
@@ -27,7 +27,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
       if (data.valid && data.score !== undefined) {
         await pushGuessToState({
           score: data.score,
-          word: cyrilicToLatin(query),
+          word: cyrilicToLatin(data.word),
         })
         setMessage('')
         resetGameState()
@@ -41,7 +41,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
 
   return (
     <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-      {gameState.guesses > MAX_GUESSES_TO_SHOW && <p className="text-xs mb-2 text-gray-400">Pokušaj: {gameState.guesses}</p>}
+      {gameState.guesses > 3 && <p className="text-xs mb-2 text-gray-400">Pokušaj {gameState.guesses}</p>}
       <input
         placeholder="Upišite reč"
         {...register('query')}

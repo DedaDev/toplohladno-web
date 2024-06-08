@@ -31,11 +31,14 @@ export const GameWinScreen: FC<IGameWinScreenProps> = ({ resetGameState, gameSta
 
   return (
     <div className="flex flex-col justify-center items-center mt-8 p-4">
-      <h1>Čestitamo!</h1>
+      <h1 className="mb-4">Čestitamo!</h1>
       <h1>
-        {' '}
         <span className="font-bold uppercase">{gameState.best_guesses[0].word}</span> je tražena reč!
       </h1>
+
+        <p className="font-md text-gray-400 mt-4">
+            Broj pokušaja: {gameState.guesses}
+        </p>
 
       {stats && stats.total_plays > 1 && (
         <div className="bg-gray-700 mt-8 p-4 rounded-xl flex flex-col gap-2">

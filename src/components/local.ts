@@ -38,16 +38,19 @@ export async function getGameState(): Promise<ILocalState> {
 export async function pushGuessToState(goodGuess: IGoodGuess) {
   const local_state = await getGameState()
   const { best_guesses } = local_state
+  local_state.last_guess = goodGuess
   if (best_guesses.length > 0) {
     const hasWord = best_guesses.find((bg) => bg.word === cyrilicToLatin(goodGuess.word))
-    if (hasWord) return
+    if (hasWord) {
+      setLocalState(local_state)
+      return
+    }
     best_guesses.push(goodGuess)
     best_guesses.sort((a, b) => a.score - b.score)
     local_state.best_guesses = best_guesses.slice(0, 10)
   } else {
     best_guesses.push(goodGuess)
   }
-  local_state.last_guess = goodGuess
   local_state.guesses++
   setLocalState(local_state)
   return local_state
