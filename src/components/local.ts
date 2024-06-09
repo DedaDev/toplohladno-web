@@ -22,7 +22,7 @@ export async function getGameState(): Promise<ILocalState> {
     const { word_id, human_clue } = await toplohladnoInstance.get('/get_random_word').then((res) => res.data)
     const newState: ILocalState = {
       word_id,
-      guesses: 1,
+      guesses: 0,
       best_guesses: [],
       last_guess: null,
       human_clue
