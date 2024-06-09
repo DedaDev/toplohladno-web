@@ -13,7 +13,7 @@ function App() {
     const [gameState, setGameState] = useState<ILocalState | null>(null)
     const [message, setMessage] = useState('')
 
-    console.log(1)
+    console.log(2)
 
     ReactGA.initialize('G-ST09LH7B4T');
 
