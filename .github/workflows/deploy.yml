@@ -31,8 +31,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /path/to/your/project
+            cd /home/deda/toplohladno-web
             git pull
             npm install
             npm run build
-            pm2 restart your-app
