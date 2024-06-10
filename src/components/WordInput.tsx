@@ -51,7 +51,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
   }
 
   return (
-    <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
+    <form id="pokusaj" className="w-full" onSubmit={handleSubmit(onSubmit)}>
       {gameState.guesses > 3 && <p className="text-xs mb-2 text-gray-400">Pokušaj {gameState.guesses}</p>}
       <input
         placeholder="Upišite reč"
