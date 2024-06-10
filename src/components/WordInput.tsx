@@ -27,9 +27,9 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
       reset()
       if (data.valid && data.score !== undefined) {
         ReactGA.event({
-          category: 'guess-category',
-          action: 'guess-action',
-          label: 'guess-label'
+          category: 'guess_category',
+          action: 'guess_action',
+          label: 'guess_label'
         })
         await pushGuessToState({
           score: data.score,
@@ -39,9 +39,9 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
         resetGameState()
       } else {
         ReactGA.event({
-          category: 'guess-category',
-          action: 'guess-action',
-          label: 'guess-label'
+          category: 'guess_category',
+          action: 'guess_action',
+          label: 'guess_label'
         })
         setMessage(data?.message)
       }
