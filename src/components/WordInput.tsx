@@ -4,6 +4,7 @@ import { cyrilicToLatin } from 'serbian-script-converter'
 import {toplohladnoInstance} from "../api/toplohladno.ts";
 import {IGuessResponse } from "./static.ts";
 import {ILocalState, pushGuessToState} from "./local.ts";
+import ReactGA from "react-ga4";
 
 interface InputProps {
   query: string
@@ -25,6 +26,11 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
         .then((res) => res.data)
       reset()
       if (data.valid && data.score !== undefined) {
+        ReactGA.event({
+          category: 'guess-category',
+          action: 'guess-action',
+          label: 'guess-label'
+        })
         await pushGuessToState({
           score: data.score,
           word: cyrilicToLatin(data.word),
@@ -32,6 +38,11 @@ export const WordInput: FC<IWordInputProps> = ({ gameState, resetGameState, setM
         setMessage('')
         resetGameState()
       } else {
+        ReactGA.event({
+          category: 'guess-category',
+          action: 'guess-action',
+          label: 'guess-label'
+        })
         setMessage(data?.message)
       }
     } catch (err) {
