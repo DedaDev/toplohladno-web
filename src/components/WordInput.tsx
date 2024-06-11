@@ -22,7 +22,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) 
   const { register, handleSubmit, reset } = useForm<InputProps>()
 
   async function onSubmit(props: InputProps) {
-    const { data } : { data: IGuessResponse } = await toplohladnoInstance.post('/guess', { query: props.query, game_id: gameInstance.game_instance.id })
+    const { data } : { data: IGuessResponse } = await toplohladnoInstance.post('/guess', { query: props.query.toLowerCase(), game_id: gameInstance.game_instance.id })
     mutate()
     reset()
 
