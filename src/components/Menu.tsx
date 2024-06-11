@@ -2,13 +2,12 @@ import { FC, useEffect, useRef, useState } from 'react'
 import Modal from './Modal.tsx'
 import { cyrilicToLatin } from 'serbian-script-converter'
 import DiscordIcon from './discord-icon.png'
-import {clearLocalState, ILocalState} from "./local.ts";
-import {getWordById} from "../api/toplohladno.ts";
+import {deactivateGame, giveUpGame} from "../api/toplohladno.ts";
 import {Clue} from "./Clue.tsx";
+import {IGameInstance} from "../types.ts";
+import {TH_GAME_STATUS} from "@prisma/client";
 
-export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = ({ resetGameState, gameState }) => {
-  const [latinWord, setLatinWord] = useState('')
-  const [giveUpModal, setGiveUpModal] = useState(false)
+export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }> = ({ gameInstance, resetInstance }) => {
   const [clueModal, setClueModal] = useState(false)
   const [howToPlayModal, setHowToPlayModal] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -29,11 +28,8 @@ export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = 
 
   async function handleGiveUp() {
     try {
-      const word = await getWordById(gameState.word_id)
-      setLatinWord(cyrilicToLatin(word))
-      clearLocalState()
-      resetGameState()
-      setGiveUpModal(true)
+      await giveUpGame(gameInstance.game_instance.id)
+      resetInstance()
       setIsOpen(false)
     } catch (err) {
       console.log('doslo je do greske', err)
@@ -45,11 +41,16 @@ export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = 
     setIsOpen(false)
   }
 
-  const isActiveGame = gameState.best_guesses.length === 0 || gameState.best_guesses[0].score !== 0
+  const isActiveGame = gameInstance.game_instance.status === TH_GAME_STATUS.ONGOING
 
   function handleClue() {
     setClueModal(true)
     setIsOpen(false)
+  }
+
+  async function handleNewGame() {
+    await deactivateGame(gameInstance.game_instance.id)
+    resetInstance()
   }
 
   return (
@@ -62,10 +63,10 @@ export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = 
       {isOpen && (
         <div className="bg-gray-600 p-2 rounded-xl mt-4 flex flex-col items-start z-10">
           {isActiveGame && (
-              <button onClick={handleClue} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
-                <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"></path></svg>
+            <button onClick={handleClue} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
+              <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"></path></svg>
                 Pomoć
-              </button>
+            </button>
           )}
           {isActiveGame && (
             <button onClick={handleGiveUp} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
@@ -92,10 +93,16 @@ export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = 
           </a>
         </div>
       )}
-      <Modal isOpen={giveUpModal} onClose={() => setGiveUpModal(false)}>
+      <Modal isOpen={gameInstance.game_instance.status === TH_GAME_STATUS.GIVEUP} onClose={handleNewGame}>
         Zadata rec je bila
-        <h1 className="text-2xl uppercase font-bold my-4 text-white">{latinWord}</h1>
-        <p className="text-xs text-gray-500 italic">pokrenuta je nova igra</p>
+        <h1 className="text-2xl uppercase font-bold my-4 text-white">{cyrilicToLatin(gameInstance.game_instance.final_word.word)}</h1>
+        <button
+          type="button"
+          className="bg-gray-600 px-3 py-2 hover:bg-gray-800 hover:border-gray-400 rounded-md mt-2"
+          onClick={handleNewGame}
+        >
+          nova igra
+        </button>
       </Modal>
       <Modal isOpen={howToPlayModal} onClose={() => setHowToPlayModal(false)}>
         <h1 className="text-xl mb-4">Kako se igra?</h1>
@@ -104,13 +111,17 @@ export const Menu: FC<{ resetGameState: () => void; gameState: ILocalState }> = 
           <br />
           <br />
           Uz svaki pokušaj dobićete povratnu informaciju koliko je vaša reč &quot;blizu&quot; zadate reči.
+          Broj pored reči označava koliko ima bližih reči od te reči.
           <br />
           <br />
-          Blizinu određuje kompleksan AI algoritam. Srećno!
+          Blizinu određuje kompleksan AI algoritam.
+          <br />
+          <br />
+          Srećno!
         </p>
       </Modal>
       <Modal isOpen={clueModal} onClose={() => setClueModal(false)}>
-        <Clue clue={gameState.human_clue} />
+        <Clue clue={gameInstance.game_instance.final_word.human_clue} />
       </Modal>
     </div>
   )

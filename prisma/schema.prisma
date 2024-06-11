@@ -1,0 +1,630 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model achivement {
+  id              String            @id @db.VarChar
+  name            String?           @db.VarChar
+  description     String?           @db.VarChar
+  user_achivement user_achivement[]
+}
+
+model daily_earnings {
+  id        String    @id @db.VarChar
+  name      String    @db.VarChar
+  imageUrl  String?
+  prefix    String    @default("+") @db.VarChar
+  inviteURL String?   @db.VarChar
+  ownerID   String?   @db.VarChar
+  premium   DateTime? @db.Timestamptz(6)
+}
+
+model discord_server {
+  id                     String                       @id @db.VarChar
+  name                   String                       @db.VarChar
+  imageUrl               String?
+  inviteURL              String?                      @db.VarChar
+  ownerID                String?                      @db.VarChar
+  premium                DateTime?                    @db.Timestamptz(6)
+  channel_game_connector channel_game_connector[]
+  paypal                 paypal[]
+  page_description       String?                      @db.VarChar()
+  page_subdomain         String?                      @db.VarChar()
+  page_bg_color          String?                      @db.VarChar()
+  page_bg_image_url      String?                      @db.VarChar()
+  kaladont_free_tries    Int                          @default(10)
+  trivia_free_tries      Int                          @default(10)
+  toplohladno_free_tries Int                          @default(10)
+  toplo_hladno_play      toplo_hladno_winning_plays[]
+}
+
+model earning {
+  id         Int     @id @default(autoincrement())
+  amount     Float   @default(0) @db.Real
+  userId     String? @db.VarChar
+  points     Int
+  year_month String  @db.VarChar
+  calculated Boolean @default(false)
+  user       user?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([userId, year_month])
+}
+
+model game {
+  id                     String                   @id @db.VarChar
+  name                   String                   @db.VarChar
+  channel_game_connector channel_game_connector[]
+  score                  score[]
+}
+
+model channel_game_connector {
+  channel_id           String                @id @unique @db.VarChar
+  server_id            String                @db.VarChar
+  game_id              String                @db.VarChar
+  game                 game                  @relation(fields: [game_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  discord_server       discord_server        @relation(fields: [server_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  kaladont_state       kaladont_state?
+  toplo_hladno_state   toplo_hladno_state?
+  trivia_state         trivia_state?
+  korak_po_korak_state korak_po_korak_state?
+}
+
+model kaladont_state {
+  id                 Int                     @id @default(autoincrement())
+  lastUserId         String?                 @db.VarChar
+  activeWordId       Int?
+  game_type          String                  @default("classic") @db.VarChar
+  connector_id       String?                 @unique
+  active_word        word?                   @relation(fields: [activeWordId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  connector          channel_game_connector? @relation(fields: [connector_id], references: [channel_id], onDelete: NoAction, onUpdate: NoAction)
+  last_user          user?                   @relation(fields: [lastUserId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  kaladont_used_word kaladont_used_word[]
+}
+
+model trivia_state {
+  id            Int                     @id @default(autoincrement())
+  question_id   Int
+  started_by_id String
+  stage         Int?
+  activity      Int?
+  connector_id  String?                 @unique
+  connector     channel_game_connector? @relation(fields: [connector_id], references: [channel_id], onDelete: NoAction, onUpdate: NoAction)
+  question      question                @relation(fields: [question_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  started_by    user                    @relation(fields: [started_by_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model toplo_hladno_state {
+  id                      Int                       @id @default(autoincrement())
+  connector_id            String?                   @unique
+  clues_used              Int                       @default(0)
+  activeWordId            Int?
+  user_started_id         String?                   @db.VarChar
+  votes_to_stop           Int                       @default(0)
+  toplo_hladno_guesses    toplo_hladno_guesses[]
+  active_word             word?                     @relation(fields: [activeWordId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  connector               channel_game_connector?   @relation(fields: [connector_id], references: [channel_id], onDelete: NoAction, onUpdate: NoAction)
+  user_started            user?                     @relation(fields: [user_started_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  toplo_hladno_stop_votes toplo_hladno_stop_votes[]
+}
+
+model korak_po_korak_state {
+  id              Int                     @id @default(autoincrement())
+  connector_id    String?                 @unique
+  activeWordId    Int?
+  guesses         Int
+  user_started_id String?                 @db.VarChar
+  active_word     word?                   @relation(fields: [activeWordId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  connector       channel_game_connector? @relation(fields: [connector_id], references: [channel_id], onDelete: NoAction, onUpdate: NoAction)
+  user_started    user?                   @relation(fields: [user_started_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model toplo_hladno_guesses {
+  id                    Int                @id @default(autoincrement())
+  toplo_hladno_state_id Int
+  userId                String             @db.VarChar
+  wordId                Int
+  score                 Float
+  toplo_hladno_state    toplo_hladno_state @relation(fields: [toplo_hladno_state_id], references: [id], onDelete: Cascade)
+  user                  user               @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  word                  word               @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([toplo_hladno_state_id, wordId])
+}
+
+model toplo_hladno_stop_votes {
+  id                    Int                @id @default(autoincrement())
+  toplo_hladno_state_id Int
+  user_id               String             @db.VarChar
+  toplo_hladno_state    toplo_hladno_state @relation(fields: [toplo_hladno_state_id], references: [id], onDelete: Cascade)
+  user                  user               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([toplo_hladno_state_id, user_id])
+}
+
+model kaladont_stats {
+  id                  Int      @id @default(autoincrement())
+  timestamp           DateTime @default(now()) @db.Timestamptz(6)
+  totalWordsUses      Int      @default(0)
+  uniqueWordsUsed     Int      @default(0)
+  averageWordUsedDate DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model kaladont_used_word {
+  id                Int            @id @default(autoincrement())
+  userId            String         @db.VarChar
+  wordId            Int
+  kaladont_state_id Int
+  kaladont_state    kaladont_state @relation(fields: [kaladont_state_id], references: [id], onDelete: Cascade)
+  user              user           @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  word              word           @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([kaladont_state_id, wordId])
+}
+
+model kviz_stats {
+  id                Int      @id @default(autoincrement())
+  timestamp         DateTime @default(now()) @db.Timestamptz(6)
+  totalGuessedRight Int      @default(0)
+  totalGuessedWrong Int      @default(0)
+  totalShowed       Int      @default(0)
+}
+
+model milioner_questions {
+  id            Int      @id @default(autoincrement())
+  question      String   @db.VarChar
+  correctAnswer String   @db.VarChar
+  wrongAnswers  String[] @db.VarChar
+  checked       Boolean  @default(false)
+  showedTimes   Int      @default(0)
+  answeredRight Int      @default(0)
+  answeredWrong Int      @default(0)
+  checkedById   String?  @db.VarChar
+  user          user?    @relation(fields: [checkedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([question, correctAnswer])
+  @@index([id])
+}
+
+model paypal {
+  orderId         String          @id @db.VarChar
+  package         String          @default("monthlySubscription") @db.VarChar
+  amount          Int             @default(1)
+  status          String          @db.VarChar
+  userId          String?         @db.VarChar
+  serverId        String?         @db.VarChar
+  updatedAt       DateTime        @default(now()) @db.Timestamp(6)
+  price           Int             @default(5)
+  premium_started DateTime?       @db.Timestamptz(6)
+  premium_ended   DateTime?       @db.Timestamptz(6)
+  discord_server  discord_server? @relation(fields: [serverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user            user?           @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model question {
+  id           Int            @id @default(autoincrement())
+  question     String
+  answers      String[]       @db.VarChar
+  category     String         @default("general") @db.VarChar
+  checked      Boolean        @default(false)
+  checkedById  String?        @db.VarChar
+  language     String         @default("all") @db.VarChar
+  showedTimes  Int            @default(0)
+  guessedWrong Int            @default(0)
+  guessedRight Int            @default(0)
+  checkedBy    user?          @relation(fields: [checkedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  trivia_state trivia_state[]
+
+  @@unique([question, answers])
+  @@index([id])
+}
+
+model score {
+  id     Int     @id @default(autoincrement())
+  state  String?
+  userId String? @db.VarChar
+  points Float   @default(0)
+  weekly Float   @default(0)
+  gameId String? @db.VarChar
+  game   game?   @relation(fields: [gameId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user   user?   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([userId, gameId])
+}
+
+model settings {
+  environment         String   @id @db.VarChar
+  averageWordUsedDate DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model user {
+  id                          String                        @id @db.VarChar
+  username                    String                        @db.VarChar
+  avatar                      String?                       @db.VarChar
+  lastKvizAnswer              DateTime?                     @db.Timestamp(6)
+  kvizEnergy                  Float                         @default(10)
+  accessLevel                 Int                           @default(0)
+  uskrs_wins                  Int                           @default(0)
+  uskrs_wins_record           Int                           @default(0)
+  cashout                     Float                         @default(0) @db.Real
+  earning                     earning[]
+  kaladont_state              kaladont_state[]
+  kaladont_used_word          kaladont_used_word[]
+  milioner_questions          milioner_questions[]
+  paypal                      paypal[]
+  question                    question[]
+  score                       score[]
+  toplo_hladno_guesses        toplo_hladno_guesses[]
+  toplo_hladno_state          toplo_hladno_state[]
+  toplo_hladno_stop_votes     toplo_hladno_stop_votes[]
+  trivia_state                trivia_state[]
+  user_achivement             user_achivement[]
+  word                        word[]
+  game_avatar_url             String?                       @db.VarChar
+  user_avatar_part            user_avatar_part[]
+  avatar_part_quest_word_user avatar_part_quest_word_user[]
+  korak_po_korak_state        korak_po_korak_state[]
+  toplo_hladno_play           toplo_hladno_winning_plays[]
+
+  @@index([id])
+}
+
+model fisherman {
+  id                   String                 @id @unique @db.VarChar
+  coins                Float                  @default(0)
+  level                Int                    @default(1)
+  bag_level            Int                    @default(1)
+  rod_level            Int                    @default(1)
+  selected_level       Int                    @default(1)
+  caught_fish          caught_fish[]
+  fish                 fish[]
+  fisherman_fish_quest fisherman_fish_quest[]
+}
+
+model fisherman_fish_quest {
+  fisherman_id   String    @db.VarChar
+  fish_id        Int?
+  amount         Int       @default(1)
+  id             Int       @id @default(autoincrement())
+  minimum_length Float?
+  fish           fish?     @relation(fields: [fish_id], references: [id], onDelete: Cascade)
+  fisherman      fisherman @relation(fields: [fisherman_id], references: [id], onDelete: Cascade)
+
+  @@unique([fisherman_id, fish_id])
+}
+
+model user_achivement {
+  id           Int        @id @default(autoincrement())
+  times        Int        @default(1)
+  achivementId String     @db.VarChar
+  userId       String     @db.VarChar
+  achivement   achivement @relation(fields: [achivementId], references: [id], onDelete: Cascade)
+  user         user       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([achivementId, userId])
+}
+
+model word {
+  word                   String                       @default(dbgenerated("false")) @db.VarChar
+  finisher               Boolean                      @default(false)
+  invalid                Boolean                      @default(false)
+  reviewedById           String?                      @db.VarChar
+  wordType               String?                      @db.VarChar
+  lastTimeUsed           DateTime                     @default(now()) @db.Timestamptz(6)
+  usedTimes              Int                          @default(0)
+  wordCase               String?                      @db.VarChar
+  plural                 Boolean?
+  labComment             String?                      @db.VarChar
+  labURL                 String?                      @db.VarChar
+  id                     Int                          @id @default(autoincrement())
+  updatedAt              DateTime                     @default(now()) @db.Timestamp(6)
+  wordSubcategory        String[]                     @default([]) @db.VarChar
+  tags                   String[]                     @default([]) @db.VarChar
+  meaning                String                       @default("") @db.VarChar
+  nominativeWordId       Int?
+  reviewerUpdatedAt      DateTime?                    @db.Timestamptz(6)
+  embedding              Float[]
+  final_ban              Boolean?                     @default(false)
+  similarity_with_others Float?
+  cosine_magnitude       Float?
+  kaladont_state         kaladont_state[]
+  kaladont_used_word     kaladont_used_word[]
+  toplo_hladno_guesses   toplo_hladno_guesses[]
+  toplo_hladno_state     toplo_hladno_state[]
+  nominative_word        word?                        @relation("wordToword", fields: [nominativeWordId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  otherCases             word[]                       @relation("wordToword")
+  reviewedBy             user?                        @relation(fields: [reviewedById], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  avatar_part_quest_word avatar_part_quest_word[]
+  word_clue              word_clue[]
+  korak_po_korak_state   korak_po_korak_state[]
+  toplo_hladno_play      toplo_hladno_winning_plays[]
+  th_giveups             Int                          @default(0)
+  th_web_games           th_web_game[]
+  th_web_game_guesses    th_web_game_guesses[]
+  human_clue             String?
+
+  @@unique([word, wordType, wordCase, meaning])
+  @@index([invalid])
+  @@index([word])
+  @@index([finisher])
+}
+
+model toplo_hladno_winning_plays {
+  id               Int            @id @default(autoincrement())
+  word_found_by_id String
+  word_found_by    user           @relation(fields: [word_found_by_id], references: [id], onDelete: Cascade)
+  steps            Int
+  word_id          Int
+  word             word           @relation(fields: [word_id], references: [id], onDelete: Cascade)
+  finished_at      DateTime       @default(now()) @db.Timestamptz(6)
+  server_id        String
+  server           discord_server @relation(fields: [server_id], references: [id], onDelete: Cascade)
+}
+
+model word_clue {
+  id           Int    @id @default(autoincrement())
+  word_id      Int
+  order_number Int    @default(0)
+  clue         String
+  word         word   @relation(fields: [word_id], references: [id], onDelete: Cascade)
+}
+
+model fish {
+  id                         Int                    @id @default(autoincrement())
+  name                       String                 @unique
+  image_url                  String
+  max_length                 Float
+  discovered_by_fisherman_id String?                @db.VarChar
+  catched_fish               caught_fish[]
+  discovered_by              fisherman?             @relation(fields: [discovered_by_fisherman_id], references: [id])
+  fisherman_fish_quest       fisherman_fish_quest[]
+}
+
+model caught_fish {
+  id                 Int             @id @default(autoincrement())
+  catched_by_user_id String          @db.VarChar
+  fish_id            Int
+  length             Float
+  cought_at          DateTime?       @db.Timestamptz(6)
+  caught_state       CaughtFishState @default(HANDS)
+  is_trophy          Boolean         @default(false)
+  fisherman          fisherman       @relation(fields: [catched_by_user_id], references: [id], onDelete: Cascade)
+  fish               fish            @relation(fields: [fish_id], references: [id], onDelete: Cascade)
+}
+
+model server_activity {
+  server_id       String   @db.VarChar
+  date_from       DateTime @db.Timestamptz(6)
+  date_to         DateTime @db.Timestamptz(6)
+  activity_points Int
+  id              Int      @id @default(autoincrement())
+}
+
+enum CaughtFishState {
+  HANDS
+  BAG
+  MARKET
+}
+
+model user_avatar_part {
+  id      Int         @id @default(autoincrement())
+  part_id Int
+  user_id String
+  part    avatar_part @relation(fields: [part_id], references: [id], onDelete: Cascade)
+  user    user        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model avatar_part {
+  id                    Int                 @id @default(autoincrement())
+  type                  AvatarPartType      @default(TOP_TYPE)
+  value                 String              @db.VarChar()
+  user_avatar_part      user_avatar_part[]
+  tier                  AvatarPartTier      @default(BASIC)
+  additional_part_query String?
+  avatar_part_quest     avatar_part_quest[]
+
+  @@unique([type, value])
+}
+
+enum AvatarPartTier {
+  BASIC
+  QUEST
+  SPECIAL
+}
+
+enum AvatarPartType {
+  TOP_TYPE
+  ACCESSORIES_TYPE
+  HAIR_COLOR
+  FACIAL_HAIR_TYPE
+  FACIAL_HAIR_COLOR
+  CLOTHE_TYPE
+  CLOTHE_COLOR
+  GRAPHIC_TYPE
+  EYE_TYPE
+  EYEBROW_TYPE
+  MOUTH_TYPE
+  SKIN_COLOR
+  HAT_COLOR
+}
+
+model avatar_part_quest {
+  id                     Int                      @id @default(autoincrement())
+  active                 Boolean                  @default(false)
+  required_words_to_find Int                      @default(1)
+  name                   String
+  description            String
+  avatar_part_quest_word avatar_part_quest_word[]
+  reward_part_id         Int
+  reward                 avatar_part              @relation(fields: [reward_part_id], references: [id], onDelete: Cascade)
+}
+
+model avatar_part_quest_word {
+  id                          Int                           @id @default(autoincrement())
+  quest_id                    Int
+  word_id                     Int
+  quest                       avatar_part_quest             @relation(fields: [quest_id], references: [id], onDelete: Cascade)
+  word                        word                          @relation(fields: [word_id], references: [id], onDelete: Cascade)
+  avatar_part_quest_part_user avatar_part_quest_word_user[]
+
+  @@unique([quest_id, word_id])
+}
+
+model avatar_part_quest_word_user {
+  quest_word_id Int
+  user_id       String
+
+  quest_word avatar_part_quest_word @relation(fields: [quest_word_id], references: [id], onDelete: Cascade)
+  user       user                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([quest_word_id, user_id])
+}
+
+// bgplus
+
+model bgplus_stops {
+  id         Int      @id
+  name       String
+  lat        Float
+  long       Float
+  slug       String
+  station_id String
+  timestamp  DateTime @default(now()) @db.Timestamptz(6)
+}
+
+enum RACE_TYPE {
+  DOG
+  HORSE
+}
+
+model horse_races {
+  id               Int       @id @default(autoincrement())
+  race_type        RACE_TYPE @default(HORSE)
+  n_of_contestants Int?
+  video_id         String
+  count            Int       @default(1)
+  file_name        String
+  positions        String
+  timestamp        DateTime  @default(now()) @db.Timestamptz(6)
+  winner_1         Float?
+  winner_2         Float?
+  winner_3         Float?
+  winner_4         Float?
+  winner_5         Float?
+  winner_6         Float?
+  winner_7         Float?
+  winner_8         Float?
+  winner_9         Float?
+  winner_10        Float?
+  winner_11        Float?
+  winner_12        Float?
+  winner_payout    Float?
+  place_1          Float?
+  place_2          Float?
+  place_3          Float?
+  place_4          Float?
+  place_5          Float?
+  place_6          Float?
+  place_7          Float?
+  place_8          Float?
+  place_9          Float?
+  place_10         Float?
+  place_11         Float?
+  place_12         Float?
+  place_payout     Float?
+  show_1           Float?
+  show_2           Float?
+  show_3           Float?
+  show_4           Float?
+  show_5           Float?
+  show_6           Float?
+  show_7           Float?
+  show_8           Float?
+  show_9           Float?
+  show_10          Float?
+  show_11          Float?
+  show_12          Float?
+  show_payout      Float?
+
+  result_1  Int?
+  result_2  Int?
+  result_3  Int?
+  result_4  Int?
+  result_5  Int?
+  result_6  Int?
+  result_7  Int?
+  result_8  Int?
+  result_9  Int?
+  result_10 Int?
+  result_11 Int?
+  result_12 Int?
+
+  results_updated Boolean @default(false)
+}
+
+model election_result {
+  region              String
+  region_id           Int
+  manucipality        String
+  manucipality_id     Int
+  election_station    String
+  election_station_id Int
+  votes_1             Int?
+  votes_2             Int?
+  votes_3             Int?
+  votes_4             Int?
+  votes_5             Int?
+  votes_6             Int?
+  votes_7             Int?
+  votes_8             Int?
+  votes_9             Int?
+  votes_10            Int?
+  votes_11            Int?
+  votes_12            Int?
+  votes_13            Int?
+  votes_14            Int?
+  votes_15            Int?
+  votes_16            Int?
+  votes_17            Int?
+  votes_18            Int?
+
+  @@unique([region_id, manucipality_id, election_station_id])
+}
+
+// status ima veze sa da li je zavrsena ili ne, dok active sluzi da pokaze give up screen na frontu ili winning screen
+model th_web_game {
+  id                      Int                   @id @default(autoincrement())
+  active                  Boolean               @default(true)
+  status                  TH_GAME_STATUS        @default(ONGOING)
+  finished                Boolean               @default(false)
+  final_number_of_guesses Int?
+  started_at              DateTime              @default(now()) @db.Timestamptz(6)
+  final_word_id           Int
+  final_word              word                  @relation(fields: [final_word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  last_guess_id           Int?                  @unique
+  last_guess              th_web_game_guesses?  @relation(fields: [last_guess_id], references: [id], onDelete: NoAction, onUpdate: NoAction, name: "lastGuess")
+  th_web_game_guesses     th_web_game_guesses[]
+}
+
+model th_web_game_guesses {
+  id              Int          @id @default(autoincrement())
+  th_web_game_id  Int
+  word_id         Int
+  similarity_rank Int
+  created_at      DateTime     @default(now()) @db.Timestamptz(6)
+  word            word         @relation(fields: [word_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  last_guess      th_web_game? @relation("lastGuess")
+  th_web_game     th_web_game? @relation(fields: [th_web_game_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([th_web_game_id, word_id])
+}
+
+enum TH_GAME_STATUS {
+  ONGOING
+  SOLVED
+  GIVEUP
+}

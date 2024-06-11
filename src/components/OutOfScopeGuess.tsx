@@ -1,20 +1,24 @@
 import { FC } from 'react'
 import { GuessBar } from './GuessBar.tsx'
-import {ILocalState} from "./local.ts";
 import {MAX_GUESSES_TO_SHOW} from "./static.ts";
+import {IGameInstance} from "../types.ts";
+import {useGetGameGuesses} from "../api/toplohladno.ts";
+import {cyrilicToLatin} from "serbian-script-converter";
 
 interface OutOfScopeGuessProps {
-  game_state: ILocalState
+  gameInstance: IGameInstance
 }
-export const OutOfScopeGuess: FC<OutOfScopeGuessProps> = ({ game_state }) => {
-  const hasMaxGuesses = game_state.best_guesses.length === MAX_GUESSES_TO_SHOW
-  if (!hasMaxGuesses || !game_state.last_guess) return
-  const lastGuessNotInBest = game_state.best_guesses[game_state.best_guesses.length - 1].score < game_state.last_guess.score
+export const OutOfScopeGuess: FC<OutOfScopeGuessProps> = ({ gameInstance }) => {
+  const { guesses = [] } = useGetGameGuesses(gameInstance?.game_instance?.id)
+
+  const hasMaxGuesses = guesses.length === MAX_GUESSES_TO_SHOW
+  if (!hasMaxGuesses || !gameInstance.game_instance.last_guess) return
+  const lastGuessNotInBest = guesses[guesses.length - 1].similarity_rank < gameInstance.game_instance.last_guess.similarity_rank
   if (!lastGuessNotInBest) return
 
   return (
-    <div className="animate-fadeOut" key={game_state.last_guess.word}>
-      <GuessBar highlighted={true} guess={game_state.last_guess} />
+    <div className="animate-fadeOut" key={cyrilicToLatin(gameInstance.game_instance.last_guess.word.word)}>
+      <GuessBar highlighted={true} guess={gameInstance.game_instance.last_guess} />
     </div>
   )
 }

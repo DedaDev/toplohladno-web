@@ -4,8 +4,6 @@ export interface IGuessResponse {
   valid: boolean
   message: string
   score?: number
-  similarity?: number
-  lowest_similarity?: number
 }
 
 export enum IGameScreen {
