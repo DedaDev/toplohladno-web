@@ -2,14 +2,17 @@ import { FC, useEffect, useRef, useState } from 'react'
 import Modal from './Modal.tsx'
 import { cyrilicToLatin } from 'serbian-script-converter'
 import DiscordIcon from './discord-icon.png'
-import {deactivateGame, giveUpGame} from "../api/toplohladno.ts";
+import {deactivateGame, giveUpGame, toplohladnoInstance} from "../api/toplohladno.ts";
 import {Clue} from "./Clue.tsx";
 import {IGameInstance} from "../types.ts";
 import {TH_GAME_STATUS} from "@prisma/client";
-import {GUESSES_REQUIRED_FOR_GIVEUP} from "./static.ts";
+import {GUESSES_REQUIRED_FOR_GIVEUP, setTokenInAxios} from "./static.ts";
 import clsx from "clsx";
+import {useGoogleLogin} from "@react-oauth/google";
+import {getToken} from "./local.ts";
 
 export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }> = ({ gameInstance, resetInstance }) => {
+  const [tokenState, setTokenState] = useState(getToken())
   const [clueModal, setClueModal] = useState(false)
   const [howToPlayModal, setHowToPlayModal] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
@@ -56,6 +59,26 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
     resetInstance()
   }
 
+  useEffect(() => {
+    setTokenInAxios(tokenState)
+  }, [tokenState]);
+
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async tokenResponse => {
+      const { data } = await toplohladnoInstance.post('/auth/google-login', { token: tokenResponse.access_token }) as { data : { token: string }}
+      if(data.token) {
+        setTokenState(data.token)
+        setIsOpen(false)
+      }
+    }
+  });
+
+  function logout() {
+    setTokenState(null)
+    setIsOpen(false)
+  }
+
   return (
     <div className="absolute right-0 top-0 flex flex-col items-end" ref={menuRef}>
       <button onClick={() => setIsOpen((o) => !o)} className="hover:bg-gray-700 p-1 rounded-full">
@@ -65,6 +88,12 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
       </button>
       {isOpen && (
         <div className="bg-gray-600 p-2 rounded-xl mt-4 flex flex-col items-start z-10">
+          {false && !tokenState && <button onClick={() => handleGoogleLogin()} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
+            <svg className="mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0 0 50 50">
+              <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path>
+            </svg>
+            Prijava
+          </button>}
           {isActiveGame && (
             <button onClick={handleClue} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
               <svg className="mr-2" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2 6a6 6 0 1 1 10.174 4.31c-.203.196-.359.4-.453.619l-.762 1.769A.5.5 0 0 1 10.5 13a.5.5 0 0 1 0 1 .5.5 0 0 1 0 1l-.224.447a1 1 0 0 1-.894.553H6.618a1 1 0 0 1-.894-.553L5.5 15a.5.5 0 0 1 0-1 .5.5 0 0 1 0-1 .5.5 0 0 1-.46-.302l-.761-1.77a1.964 1.964 0 0 0-.453-.618A5.984 5.984 0 0 1 2 6zm6-5a5 5 0 0 0-3.479 8.592c.263.254.514.564.676.941L5.83 12h4.342l.632-1.467c.162-.377.413-.687.676-.941A5 5 0 0 0 8 1z"></path></svg>
@@ -91,9 +120,24 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
             target="_blank"
             className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center"
           >
-            <img src={DiscordIcon} className="w-5 mr-2" alt="discord logo" />
+            <img src={DiscordIcon} style={{ width: '18px'}} className="mr-2" alt="discord logo" />
             Discord
           </a>
+          {tokenState && <button onClick={logout} className="hover:bg-gray-700 px-2 py-2 rounded-md w-full flex justify-start items-center">
+            <svg className="mr-2 ml-0.5" fill="currentColor" height="16" width="16" viewBox="0 0 384.971 384.971">
+              <g>
+                <g id="Sign_Out">
+                  <path d="M180.455,360.91H24.061V24.061h156.394c6.641,0,12.03-5.39,12.03-12.03s-5.39-12.03-12.03-12.03H12.03
+			C5.39,0.001,0,5.39,0,12.031V372.94c0,6.641,5.39,12.03,12.03,12.03h168.424c6.641,0,12.03-5.39,12.03-12.03
+			C192.485,366.299,187.095,360.91,180.455,360.91z"/>
+                  <path d="M381.481,184.088l-83.009-84.2c-4.704-4.752-12.319-4.74-17.011,0c-4.704,4.74-4.704,12.439,0,17.179l62.558,63.46H96.279
+			c-6.641,0-12.03,5.438-12.03,12.151c0,6.713,5.39,12.151,12.03,12.151h247.74l-62.558,63.46c-4.704,4.752-4.704,12.439,0,17.179
+			c4.704,4.752,12.319,4.752,17.011,0l82.997-84.2C386.113,196.588,386.161,188.756,381.481,184.088z"/>
+                </g>
+              </g>
+            </svg>
+            Odjava
+          </button>}
         </div>
       )}
       <Modal isOpen={gameInstance.game_instance.status === TH_GAME_STATUS.GIVEUP} onClose={handleNewGame}>
