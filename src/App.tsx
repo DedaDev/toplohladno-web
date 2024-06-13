@@ -5,6 +5,7 @@ import {WordInput} from "./components/WordInput.tsx";
 import {useGetGameInstance} from "./api/toplohladno.ts";
 import {GuessesList} from "./components/GuessesList.tsx";
 import {getLocalGameId, setLocalGameId} from "./components/local.ts";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
   const [gameId, setGameId] = useState<null | number>(getLocalGameId())
@@ -20,23 +21,26 @@ function App() {
   }, [gameInstance, gameId]);
 
 
+
   return (
-    <div className="bg-gray-800 font-jet">
-      <main className="container max-w-screen-xl mx-auto min-h-screen flex flex-col justify-start">
-        <div className="flex flex-col justify-between items-center h-screen text-white w-full">
-          <div className="flex flex-col items-center w-[350px] mt-4">
-            <div className="relative flex w-full justify-center items-center">
-              <h1 className="text-2xl font-bold">TOPLO-HLADNO</h1>
-              {gameInstance && <Menu resetInstance={mutate} gameInstance={gameInstance} />}
-            </div>
-            <div className="flex flex-col items-center mt-4 w-full">
-              {gameInstance && <WordInput resetInstance={mutate} gameInstance={gameInstance} />}
-              {gameInstance && <GuessesList gameInstance={gameInstance} />}
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT}>
+      <div className="bg-gray-800 font-jet">
+        <main className="container max-w-screen-xl mx-auto min-h-screen flex flex-col justify-start">
+          <div className="flex flex-col justify-between items-center h-screen text-white w-full">
+            <div className="flex flex-col items-center w-[350px] mt-4">
+              <div className="relative flex w-full justify-center items-center">
+                <h1 className="text-2xl font-bold">TOPLO-HLADNO</h1>
+                {gameInstance && <Menu resetInstance={mutate} gameInstance={gameInstance} />}
+              </div>
+              <div className="flex flex-col items-center mt-4 w-full">
+                {gameInstance && <WordInput resetInstance={mutate} gameInstance={gameInstance} />}
+                {gameInstance && <GuessesList gameInstance={gameInstance} />}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </GoogleOAuthProvider>
   )
 }
 

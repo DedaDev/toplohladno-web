@@ -39,7 +39,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) 
 
   return (
     <div className="w-full">
-      <form id="pokusaj" className="w-full" onSubmit={handleSubmit(onSubmit)}>
+      <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
         {gameInstance.guesses_count > 3 && <p className="text-xs mb-2 text-gray-400">Pokušaj {gameInstance.guesses_count}</p>}
         <input
           placeholder="Upišite reč"
@@ -59,6 +59,7 @@ export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) 
         <p className="font-md text-gray-400 mt-4">
               Broj pokušaja: {gameInstance.guesses_count + 1}
         </p>
+
 
         {/*{stats && stats.total_plays > 1 && (*/}
         {/*  <div className="bg-gray-700 mt-8 p-4 rounded-xl flex flex-col gap-2">*/}
