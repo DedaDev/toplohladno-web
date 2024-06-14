@@ -32,9 +32,9 @@ function App() {
                 <h1 className="text-2xl font-bold" style={{ letterSpacing: '0.2em'}}>{clueArray.join('').toUpperCase()}</h1>
                 {gameInstance && <Menu resetInstance={mutate} gameInstance={gameInstance} />}
               </div>
-              <div className="flex flex-col items-center mt-6 w-full">
-                {gameInstance && <GuessesList gameInstance={gameInstance} />}
+              <div className="flex flex-col items-center w-full">
                 {gameInstance && <WordInput resetInstance={mutate} gameInstance={gameInstance} />}
+                {gameInstance && <GuessesList gameInstance={gameInstance} />}
               </div>
             </div>
           </div>
