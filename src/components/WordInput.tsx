@@ -7,6 +7,7 @@ import {IGuessResponse} from "./static.ts";
 import Modal from "./Modal.tsx";
 import {TH_GAME_STATUS} from "@prisma/client";
 import {cyrilicToLatin} from "serbian-script-converter";
+import {WordStats} from "./WordStats.tsx";
 
 interface InputProps {
   query: string
@@ -18,7 +19,7 @@ interface IWordInputProps {
 }
 
 // sjeban single source, paziti! imamo na 3 mesta, dva front i jedan back
-export function getRewardCount(similarity_rank: number) {
+function getRewardCount(similarity_rank: number) {
   if(similarity_rank > 3800) {
     return 0
   } else if ( similarity_rank > 500) {
@@ -78,22 +79,11 @@ export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) 
         <h1>
           <span className="font-bold uppercase">{cyrilicToLatin(gameInstance.game_instance.final_word.word)}</span> je tražena reč!
         </h1>
-        <p className="font-md text-gray-400 mt-4">
+        <p className="font-md text-gray-400 text-sm mt-4">
               Broj pokušaja: {gameInstance.guesses_count + 1}
         </p>
 
-
-        {/*{stats && stats.total_plays > 1 && (*/}
-        {/*  <div className="bg-gray-700 mt-8 p-4 rounded-xl flex flex-col gap-2">*/}
-        {/*    <p>*/}
-        {/*      - ova reč je pronađena {stats.total_plays} put{stats.total_plays === 1 ? '' : 'a'}*/}
-        {/*    </p>*/}
-        {/*    <p>- prosečno pokušaja {stats.avg_steps + 1}</p>*/}
-        {/*    <p>*/}
-        {/*      - rekord: {stats.min_steps + 1} pokušaj{stats.min_steps === 0 ? '' : 'a'}*/}
-        {/*    </p>*/}
-        {/*  </div>*/}
-        {/*)}*/}
+        <WordStats word_id={gameInstance.game_instance.final_word_id} />
 
         <button
           type="button"

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import useSWR from 'swr'
-import {Prisma} from "@prisma/client";
+import {Prisma, TH_GAME_STATUS} from "@prisma/client";
 import {IGameInstance} from "../types.ts";
 
 export const toplohladnoInstance = axios.create({
@@ -24,6 +24,27 @@ export function useGetGameGuesses(game_id: number | null) {
 
   return {
     guesses: data,
+    isLoading,
+    isError: error,
+    mutate,
+  }
+}
+
+
+export interface WordStats {
+  status: TH_GAME_STATUS
+  avg_steps: number
+  min_steps: number
+  total_plays: number
+}
+
+export function useGetStats(word_id: number | null) {
+  const { data = [], error, isLoading, mutate } = useSWR(word_id ? [`/get_word_stats`, word_id]: null, ([path, word_id]) => {
+    return toplohladnoInstance.post(path, { word_id }).then((res) => res.data as WordStats[])
+  })
+
+  return {
+    stats: data,
     isLoading,
     isError: error,
     mutate,
