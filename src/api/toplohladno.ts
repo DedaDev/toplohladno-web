@@ -31,6 +31,20 @@ export function useGetGameGuesses(game_id: number | null) {
 }
 
 
+export function useGetClue(game_id: number | null) {
+  const { data = [], error, isLoading, mutate } = useSWR(game_id ? [`/get_clue`, game_id]: null, ([path, game_id]) => {
+    return toplohladnoInstance.post(path, { game_id }).then((res) => res.data as string[])
+  })
+
+  return {
+    clueArray: data,
+    isLoading,
+    isError: error,
+    mutate,
+  }
+}
+
+
 export function useGetGameInstance(game_id: number | null) {
   const { data, error, isLoading, mutate } = useSWR([`/get_game`, game_id], ([path, game_id]) => {
     return toplohladnoInstance.post(path, { game_id }).then((res) => res.data as IGameInstance)

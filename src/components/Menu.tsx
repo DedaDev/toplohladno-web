@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from 'react'
 import Modal from './Modal.tsx'
 import { cyrilicToLatin } from 'serbian-script-converter'
 import DiscordIcon from './discord-icon.png'
-import {deactivateGame, giveUpGame, toplohladnoInstance} from "../api/toplohladno.ts";
+import {deactivateGame, giveUpGame, toplohladnoInstance, useGetClue} from "../api/toplohladno.ts";
 import {Clue} from "./Clue.tsx";
 import {IGameInstance} from "../types.ts";
 import {TH_GAME_STATUS} from "@prisma/client";
@@ -16,6 +16,7 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
   const [clueModal, setClueModal] = useState(false)
   const [howToPlayModal, setHowToPlayModal] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
+  const { mutate: mutateClue } = useGetClue(gameInstance.game_instance.id)
   const menuRef = useRef<HTMLDivElement>(null)
 
   const handleClickOutside = (event: MouseEvent) => {
@@ -35,6 +36,7 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
     try {
       await giveUpGame(gameInstance.game_instance.id)
       resetInstance()
+      mutateClue()
       setIsOpen(false)
     } catch (err) {
       console.log('doslo je do greske', err)
