@@ -18,22 +18,11 @@ interface IWordInputProps {
     resetInstance: () => void
 }
 
-// sjeban single source, paziti! imamo na 3 mesta, dva front i jedan back
-function getRewardCount(similarity_rank: number) {
-  if(similarity_rank > 3800) {
-    return 0
-  } else if ( similarity_rank > 500) {
-    return 1
-  }
-  return 2
-}
-
 export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) => {
   const [message, setMessage] = useState('')
   const { mutate } = useGetGameGuesses(gameInstance.game_instance.id)
   const { register, handleSubmit, reset } = useForm<InputProps>()
-  const [rewardCount, setRewardCount] = useState(0)
-  const { mutate: mutateClue } = useGetClue(gameInstance.game_instance.id)
+  const { mutate: mutateClue, clueInfo } = useGetClue(gameInstance.game_instance.id)
 
   async function onSubmit(props: InputProps) {
     const { data } : { data: IGuessResponse } = await toplohladnoInstance.post('/guess', { query: props.query.toLowerCase(), game_id: gameInstance.game_instance.id })
@@ -44,14 +33,9 @@ export const WordInput: FC<IWordInputProps> = ({ gameInstance, resetInstance }) 
       setMessage(data.message)
     }
 
-    if(data.score) {
-      const newRc = getRewardCount(data.score)
-      if(rewardCount !== newRc) {
-        setRewardCount(newRc)
-        mutateClue()
-      }
+    if(data.score && data.score <= clueInfo.nextHelpAt) {
+      mutateClue()
     }
-
     resetInstance()
   }
   async function handleNewGame() {

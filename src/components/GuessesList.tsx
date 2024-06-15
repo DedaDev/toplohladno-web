@@ -12,6 +12,7 @@ export const GuessesList: FC<{ gameInstance: IGameInstance }> = ({ gameInstance 
     {/*{guesses.length === 0 && <Clue clue={gameInstance.game_instance.final_word.human_clue}/>}*/}
     {guesses.map((guess, i) => (
       <GuessBar
+        gameInstance={gameInstance}
         nextReward={i === 0 ? true : undefined}
         highlighted={guess.word.word === gameInstance?.game_instance?.last_guess?.word?.word}
         key={guess.word_id}

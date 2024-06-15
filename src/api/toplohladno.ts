@@ -53,12 +53,12 @@ export function useGetStats(word_id: number | null) {
 
 
 export function useGetClue(game_id: number | null) {
-  const { data = [], error, isLoading, mutate } = useSWR(game_id ? [`/get_clue`, game_id]: null, ([path, game_id]) => {
-    return toplohladnoInstance.post(path, { game_id }).then((res) => res.data as string[])
+  const { data = { nextHelpAt: 0, partialWord: [] }, error, isLoading, mutate } = useSWR(game_id ? [`/get_clue`, game_id]: null, ([path, game_id]) => {
+    return toplohladnoInstance.post(path, { game_id }).then((res) => res.data as { nextHelpAt: number, partialWord: string[] })
   })
 
   return {
-    clueArray: data,
+    clueInfo: data,
     isLoading,
     isError: error,
     mutate,

@@ -35,8 +35,8 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
   async function handleGiveUp() {
     try {
       await giveUpGame(gameInstance.game_instance.id)
-      resetInstance()
-      mutateClue()
+      await resetInstance()
+      await mutateClue()
       setIsOpen(false)
     } catch (err) {
       console.log('doslo je do greske', err)

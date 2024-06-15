@@ -3,6 +3,8 @@ import { FC } from 'react'
 import {green, orange, red} from "./static.ts";
 import {Prisma} from "@prisma/client";
 import {cyrilicToLatin} from "serbian-script-converter";
+import {useGetClue} from "../api/toplohladno.ts";
+import {IGameInstance} from "../types.ts";
 
 const MAX_WORDS = 23867
 
@@ -10,16 +12,7 @@ interface IGuessBarProps {
   guess: Prisma.th_web_game_guessesGetPayload<{ include: { word: { select: { word: true }} }}>
   highlighted: boolean
   nextReward?: boolean
-}
-
-function getReward(similarity_rank: number) {
-  if(similarity_rank > 3800) {
-    return 3800
-  } else if ( similarity_rank > 500) {
-    return 500
-  }
-
-  return null
+  gameInstance: IGameInstance
 }
 
 function getWidthForSimilarity(similarity_rank = 0) {
@@ -34,14 +27,14 @@ function getColor(width: number) {
   if (width > 0) return red
 }
 
-export const GuessBar: FC<IGuessBarProps> = ({ guess, highlighted = false, nextReward = false}) => {
+export const GuessBar: FC<IGuessBarProps> = ({ guess, highlighted = false, nextReward = false, gameInstance }) => {
   // skejluj max words na 100
+  const { clueInfo } = useGetClue(gameInstance.game_instance.id)
   const { similarity_rank, word } = guess
   const barWidth = getWidthForSimilarity(similarity_rank)
   const barColor = getColor(barWidth)
 
-  const getRewardPoint = getReward(similarity_rank)
-  const rewardOffset = getWidthForSimilarity(getRewardPoint || 0)
+  const rewardOffset = getWidthForSimilarity(clueInfo.nextHelpAt || 0)
 
   return (
     <div className={clsx('bg-gray-700 rounded-md w-full h-10 relative', highlighted && 'border-2 border-gray-300')}>
@@ -50,7 +43,7 @@ export const GuessBar: FC<IGuessBarProps> = ({ guess, highlighted = false, nextR
         <div className="text-xl">{cyrilicToLatin(word.word)}</div>
         <div className="text-md font-normal">{similarity_rank}</div>
       </div>
-      {getRewardPoint && nextReward && <div className="h-full w-1 border-dashed absolute inset-0"
+      {clueInfo.nextHelpAt !== 0 && nextReward && <div className="h-full w-1 border-dashed absolute inset-0"
         style={{
           borderRightWidth: '2px',
           marginLeft: `${rewardOffset}%`,

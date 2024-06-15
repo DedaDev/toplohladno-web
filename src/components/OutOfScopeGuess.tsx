@@ -18,7 +18,7 @@ export const OutOfScopeGuess: FC<OutOfScopeGuessProps> = ({ gameInstance }) => {
 
   return (
     <div className="animate-fadeOut" key={cyrilicToLatin(gameInstance.game_instance.last_guess.word.word)}>
-      <GuessBar highlighted={true} guess={gameInstance.game_instance.last_guess} />
+      <GuessBar gameInstance={gameInstance} highlighted={true} guess={gameInstance.game_instance.last_guess} />
     </div>
   )
 }
