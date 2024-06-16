@@ -10,6 +10,7 @@ import {GUESSES_REQUIRED_FOR_GIVEUP, setTokenInAxios} from "./static.ts";
 import clsx from "clsx";
 import {useGoogleLogin} from "@react-oauth/google";
 import {getToken} from "./local.ts";
+import {WordStats} from "./WordStats.tsx";
 
 export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }> = ({ gameInstance, resetInstance }) => {
   const [tokenState, setTokenState] = useState(getToken())
@@ -145,6 +146,9 @@ export const Menu: FC<{ gameInstance: IGameInstance, resetInstance: () => void }
       <Modal isOpen={gameInstance.game_instance.status === TH_GAME_STATUS.GIVEUP} onClose={handleNewGame}>
         Zadata rec je bila
         <h1 className="text-2xl uppercase font-bold my-4 text-white">{cyrilicToLatin(gameInstance.game_instance.final_word.word)}</h1>
+
+        <WordStats word_id={gameInstance.game_instance.final_word_id} />
+
         <button
           type="button"
           className="bg-gray-600 px-3 py-2 hover:bg-gray-800 hover:border-gray-400 rounded-md mt-2"
