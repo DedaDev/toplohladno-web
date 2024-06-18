@@ -1,6 +1,5 @@
 import React, {FC} from 'react'
 
-
 interface ITextWithNewLinesProps {
   text: string
 }

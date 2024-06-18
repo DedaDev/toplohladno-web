@@ -1,15 +1,3 @@
-export interface IGoodGuess {
-  score: number
-  word: string
-}
-export interface ILocalState {
-  human_clue: string
-  word_id: number
-  guesses: number
-  best_guesses: IGoodGuess[]
-  last_guess: IGoodGuess | null
-}
-
 const GAME_ID_KEY = 'game-state'
 const TOKEN_KEY = 'token'
 
@@ -34,7 +22,3 @@ export function getLocalGameId() {
   if (local_state) return parseInt(local_state)
   return null
 }
-
-// export function clearLocalState() {
-//   localStorage.removeItem(STATE_KEY)
-// }

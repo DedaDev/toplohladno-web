@@ -1,10 +1,10 @@
 import {useEffect, useState} from 'react'
 import ReactGA from 'react-ga4';
-import {Menu} from "./components/Menu.tsx";
-import {WordInput} from "./components/WordInput.tsx";
-import {useGetClue, useGetGameInstance} from "./api/toplohladno.ts";
-import {GuessesList} from "./components/GuessesList.tsx";
-import {getLocalGameId, setLocalGameId} from "./components/local.ts";
+import {Menu} from "../components/Menu.tsx";
+import {WordInput} from "../components/WordInput.tsx";
+import {useGetClue, useGetGameInstance} from "../api/toplohladno.ts";
+import {GuessesList} from "../components/GuessesList.tsx";
+import {getLocalGameId, setLocalGameId} from "../components/local.ts";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
@@ -12,7 +12,7 @@ function App() {
   const { gameInstance, mutate } = useGetGameInstance(gameId)
   const { clueInfo } = useGetClue(gameId)
 
-  ReactGA.initialize('G-ST09LH7B4T');
+  ReactGA.initialize(import.meta.env.VITE_ANALYTICS_KEY);
 
   useEffect(() => {
     if(gameInstance && gameId !== gameInstance.game_instance.id) {

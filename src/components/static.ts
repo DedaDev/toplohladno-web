@@ -11,11 +11,6 @@ export interface IGuessResponse {
   score?: number
 }
 
-export enum IGameScreen {
-  GAME,
-  WIN,
-}
-
 export function setTokenInAxios(token: string | null) {
   if (token) {
     // Apply the token to every request

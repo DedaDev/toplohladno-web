@@ -28,7 +28,6 @@ function getColor(width: number) {
 }
 
 export const GuessBar: FC<IGuessBarProps> = ({ guess, highlighted = false, nextReward = false, gameInstance }) => {
-  // skejluj max words na 100
   const { clueInfo } = useGetClue(gameInstance.game_instance.id)
   const { similarity_rank, word } = guess
   const barWidth = getWidthForSimilarity(similarity_rank)
@@ -47,8 +46,6 @@ export const GuessBar: FC<IGuessBarProps> = ({ guess, highlighted = false, nextR
         style={{
           borderRightWidth: '2px',
           marginLeft: `${rewardOffset}%`,
-          // borderColor: rewardColor,
-          // animation: 'colorCycle 2s infinite'
         }}></div>}
     </div>
   )
