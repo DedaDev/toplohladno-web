@@ -1,16 +1,11 @@
-import {createContext, FC, ReactNode, useContext, useEffect, useMemo, useState} from "react";
+import {FC, ReactNode, useEffect, useMemo, useState} from "react";
 import {toplohladnoInstance} from "../api/toplohladno.ts";
+import { AuthContext } from './authContext.ts'
 
 const TOKEN_KEY = 'token'
 
-interface IContextProps {
- token: string | null
- setToken: (t: string | null) => void
-}
 
-const AuthContext = createContext<IContextProps>({ token: null, setToken: () => {} });
-
-const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const AuthProviderWrapper: FC<{ children: ReactNode }> = ({ children }) => {
   const [token, setToken_] = useState<null | string>(localStorage.getItem(TOKEN_KEY));
 
   const setToken = (newToken: string | null) => {
@@ -41,8 +36,5 @@ const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 };
 
-export const useAuth = () => {
-  return useContext(AuthContext);
-};
 
-export default AuthProvider;
+export default AuthProviderWrapper;

@@ -8,7 +8,7 @@ import clsx from "clsx";
 import {useGoogleLogin} from "@react-oauth/google";
 import {GiveUpModal} from "./modals/GiveUpModal.tsx";
 import {HowToPlayModal} from "./modals/HowToPlay.tsx";
-import {useAuth} from "../hooks/AuthContext.tsx";
+import {useAuth} from "../hooks/authContext.ts";
 
 interface IMenu {
   gameInstance: IGameInstance,

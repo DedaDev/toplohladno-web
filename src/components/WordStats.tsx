@@ -4,7 +4,7 @@ import {TH_GAME_STATUS} from "@prisma/client";
 import {ChevronDownIcon, ChevronUpIcon} from "@heroicons/react/24/solid";
 import {useGoogleLogin} from "@react-oauth/google";
 import {green} from "./static.ts";
-import {useAuth} from "../hooks/AuthContext.tsx";
+import {useAuth} from "../hooks/authContext.ts";
 
 export const WordStats: FC<{ word_id: number | null }> = ({ word_id }) => {
   const { token, setToken } = useAuth()
@@ -26,12 +26,15 @@ export const WordStats: FC<{ word_id: number | null }> = ({ word_id }) => {
 
   function toggleExpand() {
     setExpanded(e => !e)
-    setHeight(isExpanded ? 0 : 155)
+    // hacky
+    const height = giveup ? 136 : 100
+    const addForLoginText = token ? 0 : 50
+    setHeight(isExpanded ? 0 : height + addForLoginText)
   }
 
   if(!solvedStats) return
 
-  return <div className="flex flex-col justify-center items-center mt-4">
+  return <div className="flex flex-col justify-center items-center">
     <button onClick={toggleExpand} className="flex items-center justify-between p-2 rounded-md">
       <span className="mr-4">statistika</span>
       {isExpanded ? <ChevronUpIcon className="w-5 h-5" /> : <ChevronDownIcon className="w-5 h-5" />}

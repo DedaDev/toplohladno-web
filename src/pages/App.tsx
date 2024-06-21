@@ -6,7 +6,7 @@ import {useGetClue, useGetGameInstance} from "../api/toplohladno.ts";
 import {GuessesList} from "../components/GuessesList.tsx";
 import {getLocalGameId, setLocalGameId} from "../components/local.ts";
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import AuthProvider from "../hooks/AuthContext.tsx";
+import AuthProviderWrapper from "../hooks/AuthProviderWrapper.tsx";
 
 function App() {
   const [gameId, setGameId] = useState<null | number>(getLocalGameId())
@@ -24,12 +24,12 @@ function App() {
 
 
   return (
-    <AuthProvider>
+    <AuthProviderWrapper>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT}>
         <div className="bg-gray-800 w-screen-xl min-h-screen font-jet flex flex-col justify-between">
           <main className="container mx-auto lex flex-col justify-start">
             <div className="flex flex-col justify-between items-center text-white w-full">
-              <div className="flex flex-col items-center w-[350px] mt-4">
+              <div className="flex flex-col items-center w-[350px] mt-8">
                 <div className="relative flex w-full justify-center items-center">
                   <h1 className="text-2xl font-bold" style={{ letterSpacing: '0.2em'}}>{clueInfo.partialWord.join('').toUpperCase()}</h1>
                   {gameInstance && <Menu resetInstance={mutate} gameInstance={gameInstance} />}
@@ -43,7 +43,7 @@ function App() {
           </main>
         </div>
       </GoogleOAuthProvider>
-    </AuthProvider>
+    </AuthProviderWrapper>
   )
 }
 
