@@ -98,7 +98,7 @@ export const TouchInput: FC<IWordInputProps> = ({ gameInstance, resetInstance })
         default: [
           "Đ E R T Z U I O P Š",
           "A S D F G H J K L Č",
-          "Ć Ž C V B N M {backspace}",
+          "Ć C V B N M Ž {backspace}",
           "{enter}"
         ]}}
       display={{
