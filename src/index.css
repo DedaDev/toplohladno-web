@@ -8,5 +8,97 @@
 }
 
 body {
+    -webkit-font-smoothing: antialiased;
+    -moz-font-smoothing: antialiased;
+    -o-font-smoothing: antialiased;
+}
+
+body {
     font-family: JetBrains, sans-serif;
+}
+
+/* Keyboard container */
+.simple-keyboard {
+    background-color: #2d3748; /* Tailwind bg-gray-800 */
+    border-radius: 0.375rem; /* Tailwind rounded-md */
+}
+
+/* Keyboard button */
+.simple-keyboard .hg-button {
+    background-color: #4a5568; /* Tailwind bg-gray-600 */
+    border-radius: 0.375rem; /* Tailwind rounded-md */
+    color: white; /* Tailwind text-white */
+    font-size: 1rem; /* Tailwind text-base */
+    transition: background-color 0.2s;
+    height: 45px;
+    margin-right: 0 !important;
+    border: 2px solid #2d3748;
+    position: relative;
+    --animation-delay: 200ms;
+}
+
+.simple-keyboard .hg-button.modify-after::after {
+    content: attr(data-after);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    position:absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #4a5568; /* Tailwind bg-gray-600 */
+    animation: fall-off 4s forwards;
+    animation-delay: var(--animation-delay);
+    border-radius: 0.375rem; /* Tailwind rounded-md */
+    z-index: 2;
+}
+
+.simple-keyboard .hg-row {
+    margin-bottom: 2px !important; /* Adjust the value as needed for spacing between rows */
+}
+
+/* Optional: Remove margin from the last row */
+.simple-keyboard .hg-row:last-child {
+    margin-bottom: 40px !important;
+}
+
+@keyframes fall-off {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+/* Apply the animation to buttons when the fall-off class is added */
+.simple-keyboard .hg-button.fall-off {
+    animation: fall-off 4s forwards;
+}
+
+.simple-keyboard .hg-button.hg-backspace {
+    background-color: #7587a2 !important; /* Tailwind bg-gray-700 */
+    color: white;
+    border-radius: 0.375rem; /* Tailwind rounded-md */
+    flex: 2;
+}
+
+.simple-keyboard .hg-button.hg-enter {
+    background-color: #7587a2 !important; /* Tailwind bg-gray-700 */
+    margin-left: auto;
+    margin-right: auto !important;
+    flex: 0.3;
+}
+
+
+.stamp-button {
+    background: none !important;
+    color: #627188 !important; /* Tailwind bg-gray-700 for text color */
+}
+
+/* Define hover effect for special buttons */
+.simple-keyboard .hg-button.hg-special:hover {
+    background-color: #2d3748; /* Tailwind bg-gray-800 */
 }

@@ -6,7 +6,6 @@ import {TH_GAME_STATUS} from "@prisma/client";
 import {GUESSES_REQUIRED_FOR_GIVEUP } from "./static.ts";
 import clsx from "clsx";
 import {useGoogleLogin} from "@react-oauth/google";
-import {GiveUpModal} from "./modals/GiveUpModal.tsx";
 import {HowToPlayModal} from "./modals/HowToPlay.tsx";
 import {useAuth} from "../hooks/authContext.ts";
 
@@ -124,7 +123,6 @@ export const Menu: FC<IMenu> = ({ gameInstance, resetInstance }) => {
           </button>}
         </div>
       )}
-      <GiveUpModal gameInstance={gameInstance} resetInstance={resetInstance} />
       <HowToPlayModal isOpenHowToPlayModal={isOpenHowToPlayModal} setIsOpenHowToPlayModal={setIsOpenHowToPlayModal} />
     </div>
   )

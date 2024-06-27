@@ -7,6 +7,10 @@ import {GuessesList} from "../components/GuessesList.tsx";
 import {getLocalGameId, setLocalGameId} from "../components/local.ts";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import AuthProviderWrapper from "../hooks/AuthProviderWrapper.tsx";
+import {SolvedModal} from "../components/modals/SolvedModal.tsx";
+import {GiveUpModal} from "../components/modals/GiveUpModal.tsx";
+import 'react-simple-keyboard/build/css/index.css';
+import {TouchInput} from "../components/TouchInput.tsx";
 
 function App() {
   const [gameId, setGameId] = useState<null | number>(getLocalGameId())
@@ -22,7 +26,6 @@ function App() {
     }
   }, [gameInstance, gameId]);
 
-
   return (
     <AuthProviderWrapper>
       <GoogleOAuthProvider clientId={import.meta.env.VITE_GCLIENT}>
@@ -30,14 +33,20 @@ function App() {
           <main className="container mx-auto lex flex-col justify-start">
             <div className="flex flex-col justify-between items-center text-white w-full">
               <div className="flex flex-col items-center w-[350px] mt-8">
-                <div className="relative flex w-full justify-center items-center">
+                <div className="relative flex w-full justify-center items-center mb-4">
+                  {gameInstance && gameInstance.guesses_count > 5 &&
+                      <p className="absolute left-0 text-xs mb-2 text-gray-500 md:hidden">Pokušaj {gameInstance.guesses_count}</p>
+                  }
                   <h1 className="text-2xl font-bold" style={{ letterSpacing: '0.2em'}}>{clueInfo.partialWord.join('').toUpperCase()}</h1>
                   {gameInstance && <Menu resetInstance={mutate} gameInstance={gameInstance} />}
                 </div>
-                <div className="flex flex-col items-center w-full">
-                  {gameInstance && <WordInput resetInstance={mutate} gameInstance={gameInstance} />}
-                  {gameInstance && <GuessesList gameInstance={gameInstance} />}
-                </div>
+                {gameInstance && <div className="flex flex-col items-center w-full">
+                  <WordInput gameInstance={gameInstance} resetInstance={mutate} />
+                  <GuessesList gameInstance={gameInstance} />
+                  <SolvedModal gameInstance={gameInstance} resetInstance={mutate} />
+                  <GiveUpModal gameInstance={gameInstance} resetInstance={mutate} />
+                  <TouchInput gameInstance={gameInstance} resetInstance={mutate} />
+                </div>}
               </div>
             </div>
           </main>

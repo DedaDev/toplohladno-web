@@ -38,7 +38,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={handleOverlayClick}
+      onMouseDown={handleOverlayClick}
     >
       <div className="relative bg-gray-700 rounded-lg shadow-lg max-w-sm w-full p-6 flex flex-col justify-center items-center text-gray-300">
         {children}

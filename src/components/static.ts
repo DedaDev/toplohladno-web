@@ -1,4 +1,4 @@
-export const MAX_GUESSES_TO_SHOW = 10
+export const MAX_GUESSES_TO_SHOW = 8
 
 export const GUESSES_REQUIRED_FOR_GIVEUP = 15
 export interface IGuessResponse {
